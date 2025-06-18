@@ -10,6 +10,7 @@ numpy>=1.26
 matplotlib
 scipy
 
+unstructured[local-inference]
 
 # === LangChain + Embeddings ===
 langchain==0.2.0
