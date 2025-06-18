@@ -97,7 +97,8 @@ st.set_page_config(page_title="Exam Generatoration Chatbot", layout="centered")
 st.title("📘 Exam Generation Bot for Zimsec Grade 7 subjects")
 
 st.write("OpenAI API key loaded:", bool(os.getenv("OPENAI_API_KEY")))
-st.write("OpenAI client initialized:", client)
+client = OpenAI()
+st.write("✅ OpenAI client initialized:", client)
 
 
 st.markdown("This tool helps Teachers and Students generate mock and formal exams based on Zimbabwe's heritage based curriculum.")
