@@ -26,7 +26,9 @@ def generate_exam_response(role: str, subject: str, prompt: str) -> str:
     if not prompt or subject not in VALID_SUBJECTS or role not in VALID_ROLES:
         raise ValueError("Invalid role, subject, or prompt")
 
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    #embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL,client=OpenAI())  # ensures compatible instantiation with no unexpected proxies )
+
     if os.path.exists(STORAGE_PATH):
         vectorstore = FAISS.load_local(STORAGE_PATH, embeddings, allow_dangerous_deserialization=True)
     else:
