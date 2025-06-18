@@ -31,8 +31,9 @@ filetype==1.2.0
 tiktoken==0.7.0
 nltk==3.8.1
 
+
 # === Dev / Logging ===
-rich==14.0.0
+rich==13.7.1
 coloredlogs
 attrs>=23.2.0
 
