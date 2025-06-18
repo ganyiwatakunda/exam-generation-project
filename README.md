@@ -6,12 +6,7 @@ When the model receives an input prompt, the system first embeds the user input
 prompt, then it searches for the most relevant documents in the knowledge base and then retrieves the
 information, and creates a new prompt which will command the LLM to generate a response which is
 relevant to the information that has been retrieved from the knowledge base , and the LLM generates
-an output back to the user. These processes have been well explained in the following text and also at
-the end of this section there is a diagram which summarizes the whole process into 5 main stages which
-will be shown by the diagram at the end of the section which are text embedding of the user prompt,
-vector search, information retrieval, Integration of RAG with LLM and lastly the generation of the
-output.
-
+an output back to the user. These processes have been well explained in the following text. 
 
 ## Input = prompt like ‘Grade 7 Mathematics paper 1 Exam for end of term’
 1. The information retrieval model transforms the users prompt into an embedding and then
