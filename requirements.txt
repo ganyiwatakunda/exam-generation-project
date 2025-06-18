@@ -1,6 +1,7 @@
 # === Core Frameworks ===
 streamlit==1.34.0
-openai==1.25.0
+#openai==1.25.0
+openai==1.56.1
 python-dotenv
 requests
 tqdm
@@ -8,6 +9,7 @@ pandas>=2.2
 numpy>=1.26
 matplotlib
 scipy
+
 
 # === LangChain + Embeddings ===
 langchain==0.2.0
