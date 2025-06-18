@@ -17,7 +17,7 @@ STORAGE_PATH = "./vectorstore"
 EMBEDDING_MODEL = "text-embedding-3-large"
 MODEL_NAME = "gpt-3.5-turbo"
 
-dotenv.load_dotenv(".env")
+#dotenv.load_dotenv(".env")
 
 VALID_SUBJECTS = ["Mathematics", "English", "ICT", "Social Science"]
 VALID_ROLES = ["Student", "Teacher"]
