@@ -1,4 +1,5 @@
 # Streamlit Integrated Exam Generator for Grade 7 (RAG + OpenAI)
+import nltk
 
 import os
 import dotenv
