@@ -1,5 +1,10 @@
 # Streamlit Integrated Exam Generator for Grade 7 (RAG + OpenAI)
 import nltk
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
 
 import os
 import dotenv
