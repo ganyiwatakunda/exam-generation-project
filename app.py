@@ -28,7 +28,8 @@ def generate_exam_response(role: str, subject: str, prompt: str) -> str:
 
     from openai import OpenAI
     #embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL,client=OpenAI())  # ensures compatible instantiation with no unexpected proxies )
+    openai_client = OpenAI()  # no proxies passed
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL,openai_client=OpenAI())  # ensures compatible instantiation with no unexpected proxies )
 
     if os.path.exists(STORAGE_PATH):
         vectorstore = FAISS.load_local(STORAGE_PATH, embeddings, allow_dangerous_deserialization=True)
