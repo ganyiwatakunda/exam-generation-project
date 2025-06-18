@@ -31,5 +31,4 @@ base)
 8. The generator creates an output based on the augmented prompt (new prompt)
 9. The new prompt synthesizes the user prompt with the retrieved data and instructs the
 generator to consider this data in its response
-## Output = A mathematics exam with instructions, mark allocations and questions which is similar to
-other mathematics exam papers
+## Output = A mathematics exam with instructions, mark allocations and questions which is similar to other mathematics exam papers
