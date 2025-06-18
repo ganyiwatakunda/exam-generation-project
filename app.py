@@ -26,6 +26,7 @@ def generate_exam_response(role: str, subject: str, prompt: str) -> str:
     if not prompt or subject not in VALID_SUBJECTS or role not in VALID_ROLES:
         raise ValueError("Invalid role, subject, or prompt")
 
+    from openai import OpenAI
     #embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
     embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL,client=OpenAI())  # ensures compatible instantiation with no unexpected proxies )
 
