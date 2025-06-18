@@ -30,6 +30,11 @@ pypdfium2==4.30.0
 pillow==10.3.0
 filetype==1.2.0
 
+# PDF + Text Parsing
+PyPDF2
+pdf2image
+pytesseract
+
 # === Tokenization and NLP ===
 tiktoken==0.7.0
 nltk==3.8.1
