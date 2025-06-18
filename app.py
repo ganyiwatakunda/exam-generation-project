@@ -91,6 +91,8 @@ def generate_exam_response(role: str, subject: str, prompt: str) -> str:
 st.set_page_config(page_title="Exam Generatoration Chatbot", layout="centered")
 st.title("📘 Exam Generation Bot for Zimsec Grade 7 subjects")
 
+st.write("OpenAI API key loaded:", bool(os.getenv("OPENAI_API_KEY")))
+
 st.markdown("This tool helps Teachers and Students generate mock and formal exams based on Zimbabwe's heritage based curriculum.")
 
 role = st.selectbox("Select your role", ["Select"] + VALID_ROLES)
