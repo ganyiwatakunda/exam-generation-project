@@ -1,14 +1,31 @@
 # exam-generation-project
-This project shows how the RAG works together with the LLM to produce Exam Questions for primary school
-teachers mainly focused on the grade 7 Zimsec curriculum, using generative AI and information retrieval.
-It also explains how the results are generated for a user given an input prompt.
-When the model receives an input prompt, the system first embeds the user input
-prompt, then it searches for the most relevant documents in the knowledge base and then retrieves the
-information, and creates a new prompt which will command the LLM to generate a response which is
-relevant to the information that has been retrieved from the knowledge base , and the LLM generates
-an output back to the user. These processes have been well explained in the following text. 
 
-## Input = prompt like ‘Grade 7 Mathematics paper 1 Exam for end of term’
+An AI-driven application designed to help **Grade 7 primary school teachers and students** in Zimbabwe generate subject-aligned exam papers and practice tests using **OpenAI**, **RAG (Retrieval-Augmented Generation)**, and a curated knowledge base of curriculum materials and past papers.
+
+## 📌 Project Overview
+
+This tool allows users to input prompts like _"Create a Grade 7 Mathematics End of Term Test"_ and automatically generates structured, relevant, and curriculum-aligned exams based on stored teaching resources.
+
+**Target Users**:
+🎓 **Teachers** – To generate official classroom exams.
+📘 **Students** – To practice with sample test papers on-demand.
+
+**Supported Subjects**:
+- Mathematics
+- English
+- ICT
+- Social Science
+- 
+## 🚀 Features
+✅ Prompt-based exam/question generation
+✅ Retrieval-Augmented Generation using LangChain + OpenAI
+✅ Use of past papers and curriculum documents as knowledge base
+✅ Transparent and explainable AI (view source for each question)
+✅ Streamlit-based user-friendly interface
+✅ Downloadable/printable exam output
+
+---
+## Input = prompt like ‘Create a Grade 7 Mathematics End of Term Test’
 1. The information retrieval model transforms the users prompt into an embedding and then
 searches the Knowledge base for similar embeddings
 2. Information retrieval model queries knowledge base/ FAISS vector store for relevant data which
