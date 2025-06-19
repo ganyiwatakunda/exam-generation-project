@@ -1,6 +1,6 @@
 # Streamlit Integrated Exam Generator for Grade 7 (RAG + OpenAI)
 import nltk
-nltk.download()
+nltk.download('punkt')
 
 
 import os
