@@ -62,15 +62,14 @@ class PDF(FPDF):
 
     def chapter_body(self, content):
         self.set_font("Arial", "", 12)
-        #self.multi_cell(0, 10, content)
         safe_content = (
-        content.replace("’", "'")
-               .replace("“", '"')
-               .replace("”", '"')
-               .replace("–", "-")
-               .replace("—", "-")
-               .replace("•", "*")
-               .replace("…", "...")
+            content.replace("’", "'")
+                   .replace("“", '"')
+                   .replace("”", '"')
+                   .replace("–", "-")
+                   .replace("—", "-")
+                   .replace("•", "*")
+                   .replace("…", "...")
         )
         self.multi_cell(0, 10, safe_content)
 
@@ -78,8 +77,7 @@ class PDF(FPDF):
         self.add_page()
         self.chapter_body(content)
 
-# Exam generation logic with truncation
-
+# === Modified generate_exam_response with correct context retrieval and truncation ===
 def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str) -> str:
     if not prompt or subject not in VALID_SUBJECTS or role not in VALID_ROLES:
         raise ValueError("Invalid role, subject, or prompt")
@@ -113,7 +111,6 @@ Structure:
 - ===ANSWER KEY===
 Provide answers in format: 1: A, 2: B, ..., 50: D
 """
-
         elif subject == "English" and paper_type == "Paper 2":
             template = """
 You are an exam generator for the Zimbabwe Grade 7 English subject.
@@ -137,7 +134,6 @@ Section B (15 marks):
 - ===ANSWER KEY===
 Give a simple rubric for Section A and detailed answers for Section B.
 """
-
         elif subject == "Social Science" and paper_type == "Paper 1":
             template = """
 You are an exam generator for the Zimbabwe Grade 7 Social Science subject.
@@ -156,7 +152,6 @@ Provide candidate instructions.
 - ===ANSWER KEY===
 Format: 1: C, 2: A, ..., 40: B
 """
-
         elif subject == "Social Science" and paper_type == "Paper 2":
             template = """
 You are an exam generator for the Zimbabwe Grade 7 Social Science subject.
@@ -175,7 +170,6 @@ Include Section A, B, and C with marks and diagrams/maps where needed
 - ===ANSWER KEY===
 Detailed answers with mark allocation.
 """
-
         elif subject == "Agriculture Science and Technology" and paper_type == "Paper 1":
             template = """
 You are an exam generator for the Zimbabwe Grade 7 Agriculture Science and Technology subject.
@@ -194,7 +188,6 @@ Provide 50 multiple choice questions (A–D options)
 - ===ANSWER KEY===
 List answers in format: 1: A, 2: B, ..., 50: C
 """
-
         elif subject == "Agriculture Science and Technology" and paper_type == "Paper 2":
             template = """
 You are an exam generator for the Zimbabwe Grade 7 Agriculture Science and Technology subject.
@@ -217,69 +210,23 @@ Section D: 3 questions
 - ===ANSWER KEY===
 Detailed answers with marks per question.
 """
-
-        else:
+        elif subject == "Mathematics" and paper_type in ["Paper 1", "Paper 2"]:
             template = f"""
-You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
-
-Use the context below to ensure curriculum relevance:
-```{{context}}```
-
-Prompt: {{question}}
-
-Generate a full exam:
-- Title: Grade 7 {subject} Examination - {paper_type}
-- ===INSTRUCTIONS===
-Provide candidate instructions.
-- ===QUESTIONS===
-Include clear formatting, question numbers, and marks
-- ===ANSWER KEY===
-Provide correct answers with marking guidance.
-"""
-
-    else:
-        template = f"""
-You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
-
-Use the context below to ensure curriculum relevance:
-```{{context}}```
-
-Prompt: {{question}}
-
-Generate a mock {paper_type} revision exam paper:
-- Title: Grade 7 {subject} Practice Questions - {paper_type}
-- ===INSTRUCTIONS===
-Give practice instructions
-- ===QUESTIONS===
-Format like real exam. DO NOT include answers.
-"""
-
-    # === NEW Mathematics Paper 2 template ===
-        elif subject == "Mathematics" and paper_type == "Paper 2":
-            template = """
 You are an exam generator for the Zimbabwe Grade 7 Mathematics subject.
 
 Use the context below to ensure curriculum relevance:
-```{context}```
+```{{context}}```
 
-Prompt: {question}
+Prompt: {{question}}
 
-Generate a full Mathematics Paper 2 exam:
-- Title: Grade 7 Mathematics Examination - Paper 2 (702/2)
+Generate a full Grade 7 Mathematics {paper_type} exam:
 - ===INSTRUCTIONS===
-- Time: 2 hours
-- Format: Written/Structured
-- Section A (25 marks): Short answer questions. All questions must be answered with workings shown.
-- Section B (15 marks): Application and problem-solving. Candidates must answer any 3 questions out of 5.
-- No calculators or measuring instruments allowed.
+Provide clear instructions for candidates.
 - ===QUESTIONS===
-- Section A: Include short answer questions requiring working and final answers.
-- Section B: Include application/problem-solving questions covering real-life contexts like budgeting, distances, perimeter, area, and graphs.
-- Include mark allocation per question.
+Include structured questions covering all key topics.
 - ===ANSWER KEY===
-Provide detailed marking scheme with marks per step.
+Provide detailed solutions and answers.
 """
-
         else:
             template = f"""
 You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
@@ -299,8 +246,8 @@ Include clear formatting, question numbers, and marks
 Provide correct answers with marking guidance.
 """
 
-        else:
-            template = f"""
+    else:  # role == Student
+        template = f"""
 You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
 
 Use the context below to ensure curriculum relevance:
@@ -318,10 +265,10 @@ Format like real exam. DO NOT include answers.
 
     prompt_template = PromptTemplate(template=template, input_variables=["context", "question"])
 
+    # Retrieve relevant docs for context with truncation
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
     retrieved_docs = retriever.get_relevant_documents(prompt)
 
-    # === CONTEXT TRUNCATION ===
     max_chars = 45000
     combined_context = ""
     for doc in retrieved_docs:
