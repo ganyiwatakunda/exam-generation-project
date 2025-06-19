@@ -78,85 +78,91 @@ def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str
     docs = load_documents(subject, paper_type)
     vectorstore = FAISS.from_documents(docs, embeddings)
 
+    # Prompt templates for different subjects and paper types
     if role == "Teacher":
-        if subject == "Social Science" and paper_type == "Paper 1":
-            template = f"""
-You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
-
-Use the context below to ensure curriculum relevance:
-```{{context}}```
-
-Prompt: {{question}}
-
-Generate a full Paper 1 exam:
-- Title: Grade 7 {subject} Examination - Paper 1
-- ===INSTRUCTIONS===
-Provide detailed candidate instructions for the exam.
-- ===QUESTIONS===
-Exactly 40 Multiple Choice Questions, numbered 1 to 40
-Each question has 4 choices (A, B, C, D)
-Include at least 5 diagram or map based questions (e.g. [Insert diagram of river system], [Insert map of Zimbabwe])
-- ===ANSWER KEY===
-Provide answer key in the format "1: B, 2: D, ..." with clear marking scheme
-"""
-        elif subject == "Social Science" and paper_type == "Paper 2":
-            template = f"""
-You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
-
-Use the context below to ensure curriculum relevance:
-```{{context}}```
-
-Prompt: {{question}}
-
-Generate a full Paper 2 exam:
-- Title: Grade 7 {subject} Examination - Paper 2
-- ===INSTRUCTIONS===
-Provide candidate instructions including section details (Section A, B, C) and exam rules.
-- ===QUESTIONS===
-Structured into Section A, Section B and Section C
-Include marks allocation per question and diagrams/maps where appropriate
-- ===ANSWER KEY===
-Provide a detailed marking scheme with model answers
-"""
-        elif subject == "English" and paper_type == "Paper 1":
-            template = f"""
+        if subject == "English" and paper_type == "Paper 1":
+            template = """
 You are an exam generator for the Zimbabwe Grade 7 English subject.
 
 Use the context below to ensure curriculum relevance:
-```{{context}}```
+```{context}```
 
-Prompt: {{question}}
+Prompt: {question}
 
 Generate a full English Paper 1 exam:
 - Title: Grade 7 English Examination - Paper 1
 - ===INSTRUCTIONS===
-Provide candidate instructions.
+Include clear instructions for the candidates to answer all 50 questions.
 - ===QUESTIONS===
-Generate a paper with the following structure:
-  - At least 4 comprehension passages, each followed by at least 6 questions
-  - Interleave language-based sections after each passage with about 8 questions
-  - Continue alternating until a total of 50 questions is reached
+Structure:
+    - Include at least 4 comprehension passages
+    - Each followed by a minimum of 6 questions
+    - Alternate each passage with 8 language-based questions (fill in blanks, punctuation, sentence correction)
+    - Continue until total of 50 questions is reached
 - ===ANSWER KEY===
-Provide a detailed marking scheme
+Provide answers in format: 1: A, 2: B, ..., 50: D
 """
+
         elif subject == "English" and paper_type == "Paper 2":
-            template = f"""
+            template = """
 You are an exam generator for the Zimbabwe Grade 7 English subject.
 
 Use the context below to ensure curriculum relevance:
-```{{context}}```
+```{context}```
 
-Prompt: {{question}}
+Prompt: {question}
 
 Generate a full English Paper 2 exam:
 - Title: Grade 7 English Examination - Paper 2
 - ===INSTRUCTIONS===
+Provide clear instructions for both sections.
+- ===QUESTIONS===
+Section A (20 marks):
+    - Letter or composition writing
+    - Include prompts or guidelines
+Section B (15 marks):
+    - One comprehension passage
+    - Include questions totalling 15 marks
+- ===ANSWER KEY===
+Give a simple rubric for Section A and detailed answers for Section B.
+"""
+
+        elif subject == "Social Science" and paper_type == "Paper 1":
+            template = """
+You are an exam generator for the Zimbabwe Grade 7 Social Science subject.
+
+Use the context below to ensure curriculum relevance:
+```{context}```
+
+Prompt: {question}
+
+Generate a full Paper 1 exam:
+- Title: Grade 7 Social Science Examination - Paper 1
+- ===INSTRUCTIONS===
 Provide candidate instructions.
 - ===QUESTIONS===
-Section A: Composition or letter writing (20 marks) — provide guidelines and options
-Section B: One comprehension passage with questions totaling 15 marks
+40 Multiple Choice Questions (A–D), include at least 5 diagram/map-based questions
 - ===ANSWER KEY===
-Provide a detailed marking scheme and model answers
+Format: 1: C, 2: A, ..., 40: B
+"""
+
+        elif subject == "Social Science" and paper_type == "Paper 2":
+            template = """
+You are an exam generator for the Zimbabwe Grade 7 Social Science subject.
+
+Use the context below to ensure curriculum relevance:
+```{context}```
+
+Prompt: {question}
+
+Generate a full Paper 2 exam:
+- Title: Grade 7 Social Science Examination - Paper 2
+- ===INSTRUCTIONS===
+Give instructions and describe sections.
+- ===QUESTIONS===
+Include Section A, B, and C with marks and diagrams/maps where needed
+- ===ANSWER KEY===
+Detailed answers with mark allocation.
 """
         else:
             template = f"""
@@ -170,12 +176,13 @@ Prompt: {{question}}
 Generate a full exam:
 - Title: Grade 7 {subject} Examination - {paper_type}
 - ===INSTRUCTIONS===
-Provide candidate instructions appropriate for the subject and exam type.
+Provide candidate instructions.
 - ===QUESTIONS===
-Provide exam questions with proper formatting and marks allocation.
+Include clear formatting, question numbers, and marks
 - ===ANSWER KEY===
-Provide detailed answers or marking scheme.
+Provide correct answers with marking guidance.
 """
+
     else:
         template = f"""
 You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
@@ -188,9 +195,9 @@ Prompt: {{question}}
 Generate a mock {paper_type} revision exam paper:
 - Title: Grade 7 {subject} Practice Questions - {paper_type}
 - ===INSTRUCTIONS===
-Provide candidate instructions for practice.
+Give practice instructions
 - ===QUESTIONS===
-Provide exam-style questions only; do NOT include answers.
+Format like real exam. DO NOT include answers.
 """
 
     prompt_template = PromptTemplate(template=template, input_variables=["context", "question"])
@@ -218,3 +225,99 @@ Provide exam-style questions only; do NOT include answers.
     )
 
     return chain.invoke(prompt)
+
+def split_exam_sections(exam_text):
+    instructions = ""
+    questions = ""
+    answers = ""
+
+    try:
+        if "===INSTRUCTIONS===" in exam_text and "===QUESTIONS===" in exam_text:
+            parts = exam_text.split("===INSTRUCTIONS===")[1].split("===QUESTIONS===")
+            instructions = parts[0].strip()
+            rest = parts[1].strip()
+
+            if "===ANSWER KEY===" in rest:
+                questions, answers = rest.split("===ANSWER KEY===")
+                questions = questions.strip()
+                answers = answers.strip()
+            else:
+                questions = rest.strip()
+        else:
+            questions = exam_text
+    except Exception:
+        questions = exam_text
+
+    return instructions, questions, answers
+
+# === Streamlit UI ===
+st.set_page_config(page_title="Exam Generator Chatbot", layout="wide")
+st.title("📘 Exam Generation Bot for Zimsec Grade 7 Subjects")
+
+with st.sidebar:
+    st.header("📚 User Guide")
+    st.markdown("""
+- **Step 1**: Select your role (Teacher or Student)  
+- **Step 2**: Choose a subject  
+- **Step 3**: Select Paper 1 or Paper 2  
+- **Step 4**: Accept or modify the prompt  
+- **Step 5**: Click **Generate Exam**  
+- **Step 6**: Download your generated paper  
+""")
+
+role = st.selectbox("🎓 Select your role", ["Select"] + VALID_ROLES)
+subject = st.selectbox("📘 Select Subject", ["Select"] + VALID_SUBJECTS)
+
+if subject != "Select" and role != "Select":
+    paper_type = st.radio("🧾 Select Exam Type", ["Paper 1", "Paper 2"])
+    pre_prompt = f"Create a {subject} {paper_type} exam"
+    prompt = st.text_area("✏️ Prompt", value=pre_prompt)
+
+    if st.button("🚀 Generate Exam") and prompt:
+        with st.spinner("Generating exam paper..."):
+            try:
+                output = generate_exam_response(role, subject, paper_type, prompt)
+                instructions, questions, answers = split_exam_sections(output)
+
+                if role == "Teacher":
+                    st.subheader("📄 Candidate Instructions + Questions")
+                    st.code(f"{instructions}\n\n{questions}")
+
+                    st.subheader("📝 Marking Scheme (Answers)")
+                    st.code(answers)
+
+                    # PDFs
+                    pdf_ij = PDF()
+                    pdf_ij.add_page()
+                    pdf_ij.chapter_body(instructions)
+                    pdf_ij.add_page()
+                    pdf_ij.chapter_body(questions)
+                    pdf_ij_buffer = BytesIO(pdf_ij.output(dest='S').encode('latin1'))
+
+                    st.download_button("⬇️ Download Instructions + Questions (PDF)", data=pdf_ij_buffer,
+                                       file_name=f"{subject}_{paper_type}_questions.pdf", mime="application/pdf")
+
+                    pdf_ans = PDF()
+                    pdf_ans.add_page()
+                    pdf_ans.chapter_body("Marking Scheme\n\n" + answers)
+                    pdf_ans_buffer = BytesIO(pdf_ans.output(dest='S').encode('latin1'))
+
+                    st.download_button("⬇️ Download Marking Scheme (PDF)", data=pdf_ans_buffer,
+                                       file_name=f"{subject}_{paper_type}_answers.pdf", mime="application/pdf")
+
+                else:
+                    st.subheader("📄 Practice Questions (No Answers)")
+                    st.code(output)
+
+                    pdf_practice = PDF()
+                    pdf_practice.add_page()
+                    pdf_practice.chapter_body(output)
+                    pdf_practice_buffer = BytesIO(pdf_practice.output(dest='S').encode('latin1'))
+
+                    st.download_button("⬇️ Download Practice Questions (PDF)", data=pdf_practice_buffer,
+                                       file_name=f"{subject}_{paper_type}_practice.pdf", mime="application/pdf")
+
+            except Exception as e:
+                st.error(f"Error: {e}")
+else:
+    st.info("Please select your role and subject.")
