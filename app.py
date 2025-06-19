@@ -198,6 +198,7 @@ Generate a full Paper 2 exam:
 - ===INSTRUCTIONS===
 Candidates must answer all 5 questions from Section A and 1 question from each of the remaining three sections (B, C, D)
 - ===QUESTIONS===
+Questions that are generated must have sub questions also and the marks allocation per question must have a breakdown
 Section A: 5 questions
 Section B: 3 questions
 Section C: 3 questions
