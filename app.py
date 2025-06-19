@@ -254,6 +254,68 @@ Give practice instructions
 Format like real exam. DO NOT include answers.
 """
 
+    # === NEW Mathematics Paper 2 template ===
+    elif subject == "Mathematics" and paper_type == "Paper 2":
+        template = """
+You are an exam generator for the Zimbabwe Grade 7 Mathematics subject.
+
+Use the context below to ensure curriculum relevance:
+```{context}```
+
+Prompt: {question}
+
+Generate a full Mathematics Paper 2 exam:
+- Title: Grade 7 Mathematics Examination - Paper 2 (702/2)
+- ===INSTRUCTIONS===
+- Time: 2 hours
+- Format: Written/Structured
+- Section A (25 marks): Short answer questions. All questions must be answered with workings shown.
+- Section B (15 marks): Application and problem-solving. Candidates must answer any 3 questions out of 5.
+- No calculators or measuring instruments allowed.
+- ===QUESTIONS===
+- Section A: Include short answer questions requiring working and final answers.
+- Section B: Include application/problem-solving questions covering real-life contexts like budgeting, distances, perimeter, area, and graphs.
+- Include mark allocation per question.
+- ===ANSWER KEY===
+Provide detailed marking scheme with marks per step.
+"""
+
+    else:
+        template = f"""
+You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
+
+Use the context below to ensure curriculum relevance:
+```{{context}}```
+
+Prompt: {{question}}
+
+Generate a full exam:
+- Title: Grade 7 {subject} Examination - {paper_type}
+- ===INSTRUCTIONS===
+Provide candidate instructions.
+- ===QUESTIONS===
+Include clear formatting, question numbers, and marks
+- ===ANSWER KEY===
+Provide correct answers with marking guidance.
+"""
+
+    else:
+        template = f"""
+You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
+
+Use the context below to ensure curriculum relevance:
+```{{context}}```
+
+Prompt: {{question}}
+
+Generate a mock {paper_type} revision exam paper:
+- Title: Grade 7 {subject} Practice Questions - {paper_type}
+- ===INSTRUCTIONS===
+Give practice instructions
+- ===QUESTIONS===
+Format like real exam. DO NOT include answers.
+"""
+
     prompt_template = PromptTemplate(template=template, input_variables=["context", "question"])
 
     retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
