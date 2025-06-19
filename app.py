@@ -26,7 +26,7 @@ MODEL_NAME = "gpt-3.5-turbo"
 VALID_SUBJECTS = ["Mathematics", "English", "Agriculture Science and Technology", "Science and Technology", "Social Science"]
 VALID_ROLES = ["Student", "Teacher"]
 
-# Function to load subject documents based on paper type
+# Load documents from resource folders
 def load_documents(subject, paper_type):
     subject_folder_map = {
         "Agriculture Science and Technology": "agriculturescienceandtechnology",
@@ -69,6 +69,7 @@ class PDF(FPDF):
         self.add_page()
         self.chapter_body(content)
 
+# Generate exam based on role/subject/paper
 def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str) -> str:
     if not prompt or subject not in VALID_SUBJECTS or role not in VALID_ROLES:
         raise ValueError("Invalid role, subject, or prompt")
@@ -77,11 +78,58 @@ def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str
     docs = load_documents(subject, paper_type)
     vectorstore = FAISS.from_documents(docs, embeddings)
 
-    # Define templates depending on role, subject, paper_type
+    # Define prompt templates
     if role == "Teacher":
-        if subject == "Social Science" and paper_type == "Paper 1":
+        if subject == "English" and paper_type == "Paper 1":
             template = f"""
-You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
+You are an exam generator for the Zimbabwe Grade 7 English subject.
+
+Use the context below to ensure curriculum relevance:
+```{{context}}```
+
+Prompt: {{question}}
+
+Generate a full English Paper 1 exam:
+- Title: Grade 7 English Examination - Paper 1
+- ===INSTRUCTIONS===
+Include clear instructions for the candidates to answer all 50 questions.
+- ===QUESTIONS===
+Structure:
+    - Include at least 4 comprehension passages
+    - Each followed by a minimum of 6 questions
+    - Alternate each passage with 8 language-based questions (fill in blanks, punctuation, sentence correction)
+    - Continue until total of 50 questions is reached
+- ===ANSWER KEY===
+Provide answers in format: 1: A, 2: B, ..., 50: D
+"""
+
+        elif subject == "English" and paper_type == "Paper 2":
+            template = f"""
+You are an exam generator for the Zimbabwe Grade 7 English subject.
+
+Use the context below to ensure curriculum relevance:
+```{{context}}```
+
+Prompt: {{question}}
+
+Generate a full English Paper 2 exam:
+- Title: Grade 7 English Examination - Paper 2
+- ===INSTRUCTIONS===
+Provide clear instructions for both sections.
+- ===QUESTIONS===
+Section A (20 marks):
+    - Letter or composition writing
+    - Include prompts or guidelines
+Section B (15 marks):
+    - One comprehension passage
+    - Include questions totalling 15 marks
+- ===ANSWER KEY===
+Give a simple rubric for Section A and detailed answers for Section B.
+"""
+
+        elif subject == "Social Science" and paper_type == "Paper 1":
+            template = f"""
+You are an exam generator for the Zimbabwe Grade 7 Social Science subject.
 
 Use the context below to ensure curriculum relevance:
 ```{{context}}```
@@ -89,19 +137,18 @@ Use the context below to ensure curriculum relevance:
 Prompt: {{question}}
 
 Generate a full Paper 1 exam:
-- Title: Grade 7 {subject} Examination - Paper 1
+- Title: Grade 7 Social Science Examination - Paper 1
 - ===INSTRUCTIONS===
-Provide detailed candidate instructions for the exam.
+Provide candidate instructions.
 - ===QUESTIONS===
-Exactly 40 Multiple Choice Questions, numbered 1 to 40
-Each question has 4 choices (A, B, C, D)
-Include at least 5 diagram or map based questions (e.g. [Insert diagram of river system], [Insert map of Zimbabwe])
+40 Multiple Choice Questions (A–D), include at least 5 diagram/map-based questions
 - ===ANSWER KEY===
-Provide answer key in the format "1: B, 2: D, ..." with clear marking scheme
+Format: 1: C, 2: A, ..., 40: B
 """
+
         elif subject == "Social Science" and paper_type == "Paper 2":
             template = f"""
-You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
+You are an exam generator for the Zimbabwe Grade 7 Social Science subject.
 
 Use the context below to ensure curriculum relevance:
 ```{{context}}```
@@ -109,17 +156,16 @@ Use the context below to ensure curriculum relevance:
 Prompt: {{question}}
 
 Generate a full Paper 2 exam:
-- Title: Grade 7 {subject} Examination - Paper 2
+- Title: Grade 7 Social Science Examination - Paper 2
 - ===INSTRUCTIONS===
-Provide candidate instructions including section details (Section A, B, C) and exam rules.
+Give instructions and describe sections.
 - ===QUESTIONS===
-Structured into Section A, Section B and Section C
-Include marks allocation per question and diagrams/maps where appropriate
+Include Section A, B, and C with marks and diagrams/maps where needed
 - ===ANSWER KEY===
-Provide a detailed marking scheme with model answers
+Detailed answers with mark allocation.
 """
         else:
-            # Default template for other subjects/papers
+            # Default teacher template
             template = f"""
 You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
 
@@ -131,14 +177,15 @@ Prompt: {{question}}
 Generate a full exam:
 - Title: Grade 7 {subject} Examination - {paper_type}
 - ===INSTRUCTIONS===
-Provide candidate instructions appropriate for the subject and exam type.
+Provide candidate instructions.
 - ===QUESTIONS===
-Provide exam questions with proper formatting and marks allocation.
+Include clear formatting, question numbers, and marks
 - ===ANSWER KEY===
-Provide detailed answers or marking scheme.
+Provide correct answers with marking guidance.
 """
+
     else:
-        # Student template — no answers included
+        # Student mode: no answers
         template = f"""
 You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
 
@@ -150,13 +197,12 @@ Prompt: {{question}}
 Generate a mock {paper_type} revision exam paper:
 - Title: Grade 7 {subject} Practice Questions - {paper_type}
 - ===INSTRUCTIONS===
-Provide candidate instructions for practice.
+Give practice instructions
 - ===QUESTIONS===
-Provide exam-style questions only; do NOT include answers.
+Format like real exam. DO NOT include answers.
 """
 
     prompt_template = PromptTemplate(template=template, input_variables=["context", "question"])
-
     retriever = vectorstore.as_retriever()
     retrieved_docs = retriever.get_relevant_documents(prompt)
     context = "\n\n".join(doc.page_content for doc in retrieved_docs)
@@ -171,7 +217,6 @@ Provide exam-style questions only; do NOT include answers.
 
     return chain.invoke(prompt)
 
-# Helper to split exam output into sections
 def split_exam_sections(exam_text):
     instructions = ""
     questions = ""
@@ -190,15 +235,13 @@ def split_exam_sections(exam_text):
             else:
                 questions = rest.strip()
         else:
-            # fallback if markers missing
             questions = exam_text
     except Exception:
-        # fail safe fallback
         questions = exam_text
 
     return instructions, questions, answers
 
-# === Streamlit App ===
+# === Streamlit UI ===
 st.set_page_config(page_title="Exam Generator Chatbot", layout="wide")
 st.title("📘 Exam Generation Bot for Zimsec Grade 7 Subjects")
 
@@ -210,13 +253,7 @@ with st.sidebar:
 - **Step 3**: Select Paper 1 or Paper 2  
 - **Step 4**: Accept or modify the prompt  
 - **Step 5**: Click **Generate Exam**  
-- **Step 6**: Download the exam paper(s) and marking scheme (if teacher)  
-""")
-
-    st.markdown("""
----
-### ℹ️ About
-This app uses generative AI with curriculum-aligned textbooks and papers to generate Grade 7 exam papers for Zimbabwe.
+- **Step 6**: Download your generated paper  
 """)
 
 role = st.selectbox("🎓 Select your role", ["Select"] + VALID_ROLES)
@@ -240,85 +277,37 @@ if subject != "Select" and role != "Select":
                     st.subheader("📝 Marking Scheme (Answers)")
                     st.code(answers)
 
-                    # Create Instructions + Questions PDF (instructions page + questions page)
+                    # PDFs
                     pdf_ij = PDF()
                     pdf_ij.add_page()
-                    pdf_ij.chapter_body(instructions)  # Instructions page
-
+                    pdf_ij.chapter_body(instructions)
                     pdf_ij.add_page()
-                    pdf_ij.chapter_body(questions)     # Questions start on new page
+                    pdf_ij.chapter_body(questions)
+                    pdf_ij_buffer = BytesIO(pdf_ij.output(dest='S').encode('latin1'))
 
-                    pdf_ij_output = pdf_ij.output(dest='S').encode('latin1')
-                    pdf_ij_buffer = BytesIO(pdf_ij_output)
+                    st.download_button("⬇️ Download Instructions + Questions (PDF)", data=pdf_ij_buffer,
+                                       file_name=f"{subject}_{paper_type}_questions.pdf", mime="application/pdf")
 
-                    st.download_button(
-                        label="⬇️ Download Instructions + Questions (PDF)",
-                        data=pdf_ij_buffer,
-                        file_name=f"{subject}_{paper_type}_instructions_questions.pdf",
-                        mime="application/pdf"
-                    )
+                    pdf_ans = PDF()
+                    pdf_ans.add_page()
+                    pdf_ans.chapter_body("Marking Scheme\n\n" + answers)
+                    pdf_ans_buffer = BytesIO(pdf_ans.output(dest='S').encode('latin1'))
 
-                    # Create Marking Scheme PDF
-                    pdf_answers = PDF()
-                    pdf_answers.add_page()
-                    pdf_answers.chapter_body("Marking Scheme\n\n" + answers)
+                    st.download_button("⬇️ Download Marking Scheme (PDF)", data=pdf_ans_buffer,
+                                       file_name=f"{subject}_{paper_type}_answers.pdf", mime="application/pdf")
 
-                    pdf_answers_output = pdf_answers.output(dest='S').encode('latin1')
-                    pdf_answers_buffer = BytesIO(pdf_answers_output)
-
-                    st.download_button(
-                        label="⬇️ Download Marking Scheme (PDF)",
-                        data=pdf_answers_buffer,
-                        file_name=f"{subject}_{paper_type}_marking_scheme.pdf",
-                        mime="application/pdf"
-                    )
-
-                    # TXT Downloads for Teachers
-                    # Instructions + Questions TXT
-                    ij_txt = f"{instructions}\n\n{questions}"
-                    ij_txt_buffer = BytesIO(ij_txt.encode("utf-8"))
-                    st.download_button(
-                        label="⬇️ Download Instructions + Questions (.txt)",
-                        data=ij_txt_buffer,
-                        file_name=f"{subject}_{paper_type}_instructions_questions.txt",
-                        mime="text/plain"
-                    )
-
-                    # Marking Scheme TXT
-                    ans_txt = "Marking Scheme\n\n" + answers
-                    ans_txt_buffer = BytesIO(ans_txt.encode("utf-8"))
-                    st.download_button(
-                        label="⬇️ Download Marking Scheme (.txt)",
-                        data=ans_txt_buffer,
-                        file_name=f"{subject}_{paper_type}_marking_scheme.txt",
-                        mime="text/plain"
-                    )
-
-                else:  # Student
+                else:
                     st.subheader("📄 Practice Questions (No Answers)")
                     st.code(output)
 
-                    # PDF download for students (practice questions only)
                     pdf_practice = PDF()
                     pdf_practice.add_page()
                     pdf_practice.chapter_body(output)
-                    pdf_practice_output = pdf_practice.output(dest='S').encode('latin1')
-                    pdf_practice_buffer = BytesIO(pdf_practice_output)
-                    st.download_button(
-                        label="⬇️ Download Practice Questions (PDF)",
-                        data=pdf_practice_buffer,
-                        file_name=f"{subject}_{paper_type}_practice_questions.pdf",
-                        mime="application/pdf"
-                    )
+                    pdf_practice_buffer = BytesIO(pdf_practice.output(dest='S').encode('latin1'))
 
-                    # TXT download for students
-                    practice_buffer = BytesIO(output.encode("utf-8"))
-                    st.download_button(
-                        label="⬇️ Download Practice Questions (.txt)",
-                        data=practice_buffer,
-                        file_name=f"{subject}_{paper_type}_practice_questions.txt",
-                        mime="text/plain"
-                    )
+                    st.download_button("⬇️ Download Practice Questions (PDF)", data=pdf_practice_buffer,
+                                       file_name=f"{subject}_{paper_type}_practice.pdf", mime="application/pdf")
+
             except Exception as e:
                 st.error(f"Error: {e}")
 else:
