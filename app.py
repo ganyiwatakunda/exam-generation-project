@@ -236,7 +236,7 @@ if subject != "Select" and role != "Select":
 
                 # Save as PDF
                 import unicodedata
-
+                pdf = PDF()
                 # Clean the output for PDF compatibility
                 clean_output = unicodedata.normalize("NFKD", output).encode("ascii", "ignore").decode("ascii")
                 
