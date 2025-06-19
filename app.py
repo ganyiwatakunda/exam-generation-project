@@ -314,7 +314,7 @@ subject = st.selectbox("📘 Select Subject", ["Select"] + VALID_SUBJECTS)
 if subject != "Select" and role != "Select":
     paper_type = st.radio("\U0001F9FE Select Exam Type", ["Paper 1", "Paper 2"])
     default_prompt = f"Create a {subject} {paper_type} exam"
-    prompt = st.text_area("\u270F\ufe0f Prompt", value=default_prompt)
+    prompt = st.text_area("✏️ Prompt", value=default_prompt)
 
     if st.button("\U0001F680 Generate Exam") and prompt:
         with st.spinner("Generating exam paper..."):
@@ -326,6 +326,9 @@ if subject != "Select" and role != "Select":
                     questions, answers = rest.split("===ANSWER KEY===", 1)
                 else:
                     instructions, questions, answers = output, "", ""
+
+                # Prepare PDFs
+                pdf_files = {}
 
                 if role == "Teacher":
                     st.subheader("\U0001F4C4 Candidate Instructions + Questions")
@@ -340,17 +343,13 @@ if subject != "Select" and role != "Select":
                     pdf_ij.add_page()
                     pdf_ij.chapter_body(questions)
                     pdf_ij_buffer = BytesIO(pdf_ij.output(dest='S').encode('latin1'))
-
-                    st.download_button("\u2B07\ufe0f Download Instructions + Questions (PDF)", data=pdf_ij_buffer,
-                                       file_name=f"{subject}_{paper_type}_questions.pdf", mime="application/pdf")
+                    pdf_files["Instructions + Questions"] = pdf_ij_buffer
 
                     pdf_ans = PDF()
                     pdf_ans.add_page()
                     pdf_ans.chapter_body("Marking Scheme\n\n" + answers)
                     pdf_ans_buffer = BytesIO(pdf_ans.output(dest='S').encode('latin1'))
-
-                    st.download_button("\u2B07\ufe0f Download Marking Scheme (PDF)", data=pdf_ans_buffer,
-                                       file_name=f"{subject}_{paper_type}_answers.pdf", mime="application/pdf")
+                    pdf_files["Marking Scheme"] = pdf_ans_buffer
 
                 else:
                     st.subheader("\U0001F4C4 Practice Questions (No Answers)")
@@ -360,9 +359,13 @@ if subject != "Select" and role != "Select":
                     pdf_practice.add_page()
                     pdf_practice.chapter_body(output)
                     pdf_practice_buffer = BytesIO(pdf_practice.output(dest='S').encode('latin1'))
+                    pdf_files["Practice Questions"] = pdf_practice_buffer
 
-                    st.download_button("\u2B07\ufe0f Download Practice Questions (PDF)", data=pdf_practice_buffer,
-                                       file_name=f"{subject}_{paper_type}_practice.pdf", mime="application/pdf")
+                # Show all download buttons
+                for label, buffer in pdf_files.items():
+                    st.download_button(f"⬇️ Download {label} (PDF)", data=buffer,
+                                       file_name=f"{subject}_{paper_type}_{label.lower().replace(' ', '_')}.pdf",
+                                       mime="application/pdf")
 
             except Exception as e:
                 st.error(f"Error: {e}")
