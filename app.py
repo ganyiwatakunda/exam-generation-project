@@ -131,6 +131,7 @@ def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str
             - Structured into Section A, Section B and Section C
             - Use correct section formatting based on past papers
             - Include diagrams or maps where appropriate
+            - convert other textual questions into diagrams 
             - Each question should indicate marks
             - Provide sample answers at the end
             """
@@ -189,24 +190,30 @@ st.title("📘 Exam Generation Bot for Zimsec Grade 7 Subjects")
 
 st.markdown("""
 ### 📝 Overview
-Welcome to the Grade 7 Exam Generator!
-
-This system uses AI and educational materials to generate mock and real exam papers for Zimbabwe's Grade 7 curriculum.
-
+Welcome to the Zimsec Grade 7 Exam Generator!
+This system uses AI and educational materials to generate exam papers for Zimsec Grade 7 curriculum.
 - 📚 **Curriculum-Based**: Generates exams based on uploaded past papers and textbooks.
 - 🎯 **Subjects Supported**: Social Science, English, Mathematics, Science & Tech, Agriculture Science & Tech.
 - ✍️ **Paper Format Matching**: Matches real exam formats including multiple choice and sectioned structured exams.
 - 📥 **Downloadable**: Exams can be downloaded as `.txt` or `.pdf` files.
 
-### 🧑‍🏫 How to Use
-1. **Select your role**: Teacher or Student
-2. **Choose a subject**
-3. **Pick Paper 1 or Paper 2** (Paper 1 = multiple choice, Paper 2 = structured questions)
-4. **Modify or accept pre-filled prompt**
-5. **Click 'Generate Exam'**
-6. **Download and review**
-""")
+with st.sidebar:
+    st.header("📚 User Guide")
+    st.markdown("""
+    - **Step 1**: Select your role (Teacher or Student)
+    - **Step 2**: Choose a subject
+    - **Step 3**: Select Paper 1 or Paper 2
+    - **Step 4**: Accept or modify the prompt
+    - **Step 5**: Click **Generate Exam**
+    - **Step 6**: Download the exam as PDF or TXT
+    """)
 
+    st.markdown("""
+    ---
+    ### ℹ️ About
+    This app uses generative AI with curriculum-aligned textbooks and papers.
+    """)
+            
 role = st.selectbox("Select your role", ["Select"] + VALID_ROLES)
 subject = st.selectbox("Select Subject", ["Select"] + VALID_SUBJECTS)
 
