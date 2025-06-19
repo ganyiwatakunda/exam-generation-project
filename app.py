@@ -235,10 +235,20 @@ if subject != "Select" and role != "Select":
                 )
 
                 # Save as PDF
-                pdf = PDF()
-                pdf.add_exam(output)
+                import unicodedata
+
+                # Clean the output for PDF compatibility
+                clean_output = unicodedata.normalize("NFKD", output).encode("ascii", "ignore").decode("ascii")
+                
+                pdf.add_exam(clean_output)
                 pdf_output = pdf.output(dest='S').encode('latin1')
                 pdf_buffer = BytesIO(pdf_output)
+
+                
+               # pdf = PDF()
+                #pdf.add_exam(output)
+                #pdf_output = pdf.output(dest='S').encode('latin1')
+                #pdf_buffer = BytesIO(pdf_output)
                 
                 st.download_button(
                     label="⬇️ Download as PDF",
