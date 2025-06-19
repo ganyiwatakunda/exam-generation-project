@@ -196,6 +196,7 @@ This system uses AI and educational materials to generate exam papers for Zimsec
 - 🎯 **Subjects Supported**: Social Science, English, Mathematics, Science & Tech, Agriculture Science & Tech.
 - ✍️ **Paper Format Matching**: Matches real exam formats including multiple choice and sectioned structured exams.
 - 📥 **Downloadable**: Exams can be downloaded as `.txt` or `.pdf` files.
+""")
 
 with st.sidebar:
     st.header("📚 User Guide")
