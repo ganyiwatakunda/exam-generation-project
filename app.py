@@ -208,8 +208,7 @@ with st.sidebar:
     - **Step 6**: Download the exam as PDF or TXT
     """)
 
-    st.markdown("""---### ℹ️ About 
-    This app uses generative AI with curriculum-aligned textbooks and papers.""")
+    st.markdown("""---### ℹ️ About This app uses generative AI with curriculum-aligned textbooks and papers.""")
             
 role = st.selectbox("Select your role", ["Select"] + VALID_ROLES)
 subject = st.selectbox("Select Subject", ["Select"] + VALID_SUBJECTS)
