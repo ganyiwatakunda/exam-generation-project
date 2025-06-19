@@ -1,6 +1,10 @@
 # Streamlit Integrated Exam Generator for Grade 7 (RAG + OpenAI)
 import nltk
 nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+nltk.download('stopwords')
+nltk.download('omw-1.4')
 
 
 import os
