@@ -62,7 +62,7 @@ class PDF(FPDF):
 
     def chapter_body(self, content):
         self.set_font("Arial", "", 12)
-        self.multi_cell(0, 10, content)
+        #self.multi_cell(0, 10, content)
         safe_content = (
         content.replace("’", "'")
                .replace("“", '"')
