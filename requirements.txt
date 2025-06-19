@@ -29,6 +29,8 @@ pdfminer.six==20231228
 pypdfium2==4.30.0
 pillow==10.3.0
 filetype==1.2.0
+fpdf
+
 
 # PDF + Text Parsing
 PyPDF2
