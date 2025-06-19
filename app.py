@@ -71,8 +71,8 @@ class PDF(FPDF):
                .replace("—", "-")
                .replace("•", "*")
                .replace("…", "...")
-    )
-    self.multi_cell(0, 10, safe_content)
+        )
+        self.multi_cell(0, 10, safe_content)
 
     def add_page_with_content(self, content):
         self.add_page()
