@@ -6,11 +6,11 @@ nltk.download('wordnet')
 nltk.download('stopwords')
 nltk.download('omw-1.4')
 
-
 import os
 import dotenv
 import streamlit as st
 from io import BytesIO
+from fpdf import FPDF
 from langchain_community.document_loaders import DirectoryLoader
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
@@ -19,52 +19,118 @@ from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 
 # === CONFIG ===
-RESOURCE_PATH = "./resources"
+BASE_RESOURCE_PATH = "./resources"
 STORAGE_PATH = "./vectorstore"
 EMBEDDING_MODEL = "text-embedding-3-large"
 MODEL_NAME = "gpt-3.5-turbo"
 
-#dotenv.load_dotenv(".env")
-
-VALID_SUBJECTS = ["Mathematics", "English", "ICT", "Social Science"]
+VALID_SUBJECTS = ["Mathematics", "English", "Agriculture Science and Technology", "Science and Technology", "Social Science"]
 VALID_ROLES = ["Student", "Teacher"]
 
-def generate_exam_response(role: str, subject: str, prompt: str) -> str:
+# Function to load subject documents based on paper type
+def load_documents(subject, paper_type):
+    subject_folder_map = {
+        "Agriculture Science and Technology": "agriculturescienceandtechnology",
+        "Science and Technology": "scienceandtechnology",
+        "Social Science": "socialscience",
+        "Mathematics": "mathematics",
+        "English": "english"
+    }
+    subject_path = os.path.join(BASE_RESOURCE_PATH, subject_folder_map.get(subject, subject.lower().replace(" ", "")))
+    selected_folders = []
+
+    if subject == "Social Science":
+        if paper_type == "Paper 1":
+            selected_folders.append("paper1")
+        elif paper_type == "Paper 2":
+            selected_folders.append("paper2")
+
+    selected_folders.append("textbook")
+
+    docs = []
+    for folder in selected_folders:
+        full_path = os.path.join(subject_path, folder)
+        if os.path.exists(full_path):
+            loader = DirectoryLoader(full_path)
+            docs.extend(loader.load())
+    return docs
+
+# PDF generator
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, "Generated Exam Paper", ln=True, align="C")
+        self.ln(10)
+
+    def chapter_body(self, content):
+        self.set_font("Arial", "", 12)
+        self.multi_cell(0, 10, content)
+
+    def add_exam(self, content):
+        self.add_page()
+        self.chapter_body(content)
+
+def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str) -> str:
     if not prompt or subject not in VALID_SUBJECTS or role not in VALID_ROLES:
         raise ValueError("Invalid role, subject, or prompt")
 
-    from openai import OpenAI
-    #embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
-    #client = OpenAI()  # no proxies passed
-    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)  # ensures compatible instantiation with no unexpected proxies )
-    #embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL,client=OpenAI())  # ensures compatible instantiation with no unexpected proxies )
-    #embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL,client=client)  # ensures compatible instantiation with no unexpected proxies )
-
-    if os.path.exists(STORAGE_PATH):
-        vectorstore = FAISS.load_local(STORAGE_PATH, embeddings, allow_dangerous_deserialization=True)
-    else:
-        loader = DirectoryLoader(RESOURCE_PATH)
-        docs = loader.load()
-        vectorstore = FAISS.from_documents(docs, embeddings)
-        vectorstore.save_local(STORAGE_PATH)
+    embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
+    docs = load_documents(subject, paper_type)
+    vectorstore = FAISS.from_documents(docs, embeddings)
 
     if role == "Teacher":
-        template = f"""
-        You are an exam paper generator for the Zimbabwe Grade 7 {subject} subject.
+        if subject == "Social Science" and paper_type == "Paper 1":
+            template = f"""
+            You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
 
-        Use the context below to ensure curriculum relevance:
-        ```{{context}}```
+            Use the context below to ensure curriculum relevance:
+            ```{{context}}```
 
-        Prompt: {{question}}
+            Prompt: {{question}}
 
-        You must output a complete formal exam paper:
-        - Title: Grade 7 {subject} Examination
-        - Candidate Instructions
-        - Section A, B, etc. with headings
-        - Each question has marks
-        - Provide sample answers after the questions
-        - Use Zimbabwean exam formatting and style
-        """
+            Generate a full Paper 1 exam:
+            - Title: Grade 7 {subject} Examination - Paper 1
+            - Instructions to candidates
+            - 40 Multiple Choice Questions
+            - Numbered 1 to 40
+            - 4 choices per question (A, B, C, D)
+            - Include diagrams or images where applicable
+            - Provide sample answers at the end
+            """
+        elif subject == "Social Science" and paper_type == "Paper 2":
+            template = f"""
+            You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
+
+            Use the context below to ensure curriculum relevance:
+            ```{{context}}```
+
+            Prompt: {{question}}
+
+            Generate a full Paper 2 exam:
+            - Title: Grade 7 {subject} Examination - Paper 2
+            - Candidate Instructions
+            - Structured into Section A, Section B and Section C
+            - Use correct section formatting based on past papers
+            - Include diagrams or maps where appropriate
+            - Each question should indicate marks
+            - Provide sample answers at the end
+            """
+        else:
+            template = f"""
+            You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
+
+            Use the context below to ensure curriculum relevance:
+            ```{{context}}```
+
+            Prompt: {{question}}
+
+            Generate a full exam:
+            - Title: Grade 7 {subject} Examination - {paper_type}
+            - Structured appropriately per subject norms (skip sections for Paper 1 if not used)
+            - Include instructions, clear formatting, and mark allocations
+            - Include diagrams or visual aids if relevant
+            - Provide sample answers at the end
+            """
     else:
         template = f"""
         You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
@@ -74,20 +140,19 @@ def generate_exam_response(role: str, subject: str, prompt: str) -> str:
 
         Prompt: {{question}}
 
-        You must generate a mock revision exam paper:
-        - Title: Grade 7 {subject} Revision Paper
-        - Short candidate instructions
-        - Full set of exam-style questions organized into sections
-        - Exclude answer key to encourage practice (no answers provided)
-        - Keep language simple and clear
+        Generate a mock {paper_type} revision exam paper:
+        - Title: Grade 7 {subject} Revision Paper - {paper_type}
+        - Candidate instructions
+        - Full set of exam-style questions
         - Indicate marks per question
+        - Exclude answers to encourage practice
         """
 
     prompt_template = PromptTemplate(template=template, input_variables=["context", "question"])
 
     retriever = vectorstore.as_retriever()
-    docs = retriever.get_relevant_documents(prompt)
-    context = "\n\n".join(doc.page_content for doc in docs)
+    retrieved_docs = retriever.get_relevant_documents(prompt)
+    context = "\n\n".join(doc.page_content for doc in retrieved_docs)
 
     llm = ChatOpenAI(model_name=MODEL_NAME)
     chain = (
@@ -97,41 +162,73 @@ def generate_exam_response(role: str, subject: str, prompt: str) -> str:
         StrOutputParser()
     )
 
-    result = chain.invoke(prompt)
-    return result
+    return chain.invoke(prompt)
 
 # === Streamlit App ===
-st.set_page_config(page_title="Exam Generatoration Chatbot", layout="centered")
-st.title("📘 Exam Generation Bot for Zimsec Grade 7 subjects")
+st.set_page_config(page_title="Exam Generator Chatbot", layout="centered")
+st.title("📘 Exam Generation Bot for Zimsec Grade 7 Subjects")
 
-st.write("OpenAI API key loaded:", bool(os.getenv("OPENAI_API_KEY")))
+st.markdown("""
+### 📝 Overview
+Welcome to the Grade 7 Exam Generator!
 
-st.markdown("This tool helps Teachers and Students generate mock and formal exams based on Zimbabwe's heritage based curriculum.")
+This system uses AI and educational materials to generate mock and real exam papers for Zimbabwe's Grade 7 curriculum.
+
+- 📚 **Curriculum-Based**: Generates exams based on uploaded past papers and textbooks.
+- 🎯 **Subjects Supported**: Social Science, English, Mathematics, Science & Tech, Agriculture Science & Tech.
+- ✍️ **Paper Format Matching**: Matches real exam formats including multiple choice and sectioned structured exams.
+- 📥 **Downloadable**: Exams can be downloaded as `.txt` or `.pdf` files.
+
+### 🧑‍🏫 How to Use
+1. **Select your role**: Teacher or Student
+2. **Choose a subject**
+3. **Pick Paper 1 or Paper 2** (Paper 1 = multiple choice, Paper 2 = structured questions)
+4. **Modify or accept pre-filled prompt**
+5. **Click 'Generate Exam'**
+6. **Download and review**
+""")
 
 role = st.selectbox("Select your role", ["Select"] + VALID_ROLES)
 subject = st.selectbox("Select Subject", ["Select"] + VALID_SUBJECTS)
 
 if subject != "Select" and role != "Select":
-    prompt = st.text_area("Enter your prompt", placeholder="e.g. Create an end of term exam on algebra")
+    paper_type = st.radio("Select Exam Type", ["Paper 1", "Paper 2"])
+    pre_prompt = f"Create a {subject} {paper_type} exam"
+    prompt = st.text_area("Prompt", value=pre_prompt)
+
     if st.button("Generate Exam") and prompt:
         with st.spinner("Generating exam paper..."):
             try:
-                output = generate_exam_response(role, subject, prompt)
+                output = generate_exam_response(role, subject, paper_type, prompt)
                 st.subheader("📄 Generated Exam Paper")
                 st.code(output)
 
-                # Convert to BytesIO for download
-                buffer = BytesIO()
-                buffer.write(output.encode("utf-8"))
-                buffer.seek(0)
-                file_name = f"{role}_{subject.replace(' ', '_')}_exam.txt"
+                # Save as TXT
+                txt_buffer = BytesIO()
+                txt_buffer.write(output.encode("utf-8"))
+                txt_buffer.seek(0)
 
                 st.download_button(
-                    label="⬇️ Download Exam Paper",
-                    data=buffer,
-                    file_name=file_name,
+                    label="⬇️ Download as .txt",
+                    data=txt_buffer,
+                    file_name=f"{subject}_{paper_type}.txt",
                     mime="text/plain"
                 )
+
+                # Save as PDF
+                pdf = PDF()
+                pdf.add_exam(output)
+                pdf_buffer = BytesIO()
+                pdf.output(pdf_buffer)
+                pdf_buffer.seek(0)
+
+                st.download_button(
+                    label="⬇️ Download as PDF",
+                    data=pdf_buffer,
+                    file_name=f"{subject}_{paper_type}.pdf",
+                    mime="application/pdf"
+                )
+
             except Exception as e:
                 st.error(f"Error: {e}")
 else:
