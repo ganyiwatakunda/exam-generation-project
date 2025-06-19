@@ -234,7 +234,7 @@ if subject != "Select" and role != "Select":
                 instructions, questions, answers = split_exam_sections(output)
 
                 if role == "Teacher":
-                    st.subheader("📄 Generated Exam")
+                    st.subheader("📄 Candidate Instructions + Questions")
                     st.code(f"{instructions}\n\n{questions}")
 
                     st.subheader("📝 Marking Scheme (Answers)")
@@ -252,7 +252,7 @@ if subject != "Select" and role != "Select":
                     pdf_ij_buffer = BytesIO(pdf_ij_output)
 
                     st.download_button(
-                        label="⬇️ Download Generated Exam",
+                        label="⬇️ Download Instructions + Questions (PDF)",
                         data=pdf_ij_buffer,
                         file_name=f"{subject}_{paper_type}_instructions_questions.pdf",
                         mime="application/pdf"
@@ -278,7 +278,7 @@ if subject != "Select" and role != "Select":
                     ij_txt = f"{instructions}\n\n{questions}"
                     ij_txt_buffer = BytesIO(ij_txt.encode("utf-8"))
                     st.download_button(
-                        label="⬇️ Download Generated Exam (.txt)",
+                        label="⬇️ Download Instructions + Questions (.txt)",
                         data=ij_txt_buffer,
                         file_name=f"{subject}_{paper_type}_instructions_questions.txt",
                         mime="text/plain"
