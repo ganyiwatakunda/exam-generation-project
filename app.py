@@ -105,10 +105,11 @@ Generate a full English Paper 1 exam:
 Include clear instructions for the candidates to answer all 50 questions.
 - ===QUESTIONS===
 Structure:
-    - Include at least 4 comprehension passages
-    - Each followed by a minimum of 6 questions
+    - Include at least 4 structured comprehension passages
+    - Each comprehension followed by a minimum of 6 questions which are multiple choice questions with 4 options (A-D),
     - Alternate each passage with 8 language-based questions (fill in blanks, punctuation, sentence correction)
     - Continue until total of 50 questions is reached
+    - For grammar and vocabulary sections, include multiple choice format,
 - ===ANSWER KEY===
 Provide answers in format: 1: A, 2: B, ..., 50: D
 """
