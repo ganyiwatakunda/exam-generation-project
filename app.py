@@ -211,8 +211,7 @@ with st.sidebar:
     st.markdown("""
     ---
     ### ℹ️ About
-    This app uses generative AI with curriculum-aligned textbooks and papers.
-    """)
+    This app uses generative AI with curriculum-aligned textbooks and papers.""")
             
 role = st.selectbox("Select your role", ["Select"] + VALID_ROLES)
 subject = st.selectbox("Select Subject", ["Select"] + VALID_SUBJECTS)
