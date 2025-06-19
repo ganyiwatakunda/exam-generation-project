@@ -218,10 +218,9 @@ if subject != "Select" and role != "Select":
                 # Save as PDF
                 pdf = PDF()
                 pdf.add_exam(output)
-                pdf_buffer = BytesIO()
-                pdf.output(pdf_buffer)
-                pdf_buffer.seek(0)
-
+                pdf_output = pdf.output(dest='S').encode('latin1')
+                pdf_buffer = BytesIO(pdf_output)
+                
                 st.download_button(
                     label="⬇️ Download as PDF",
                     data=pdf_buffer,
