@@ -164,6 +164,48 @@ Include Section A, B, and C with marks and diagrams/maps where needed
 - ===ANSWER KEY===
 Detailed answers with mark allocation.
 """
+
+        elif subject == "Agriculture Science and Technology" and paper_type == "Paper 1":
+            template = """
+You are an exam generator for the Zimbabwe Grade 7 Agriculture Science and Technology subject.
+
+Use the context below to ensure curriculum relevance:
+```{context}```
+
+Prompt: {question}
+
+Generate a full Paper 1 exam:
+- Title: Grade 7 Agriculture Science and Technology Examination - Paper 1
+- ===INSTRUCTIONS===
+Candidates must answer all 50 multiple choice questions.
+- ===QUESTIONS===
+Provide 50 multiple choice questions (A–D options)
+- ===ANSWER KEY===
+List answers in format: 1: A, 2: B, ..., 50: C
+"""
+
+        elif subject == "Agriculture Science and Technology" and paper_type == "Paper 2":
+            template = """
+You are an exam generator for the Zimbabwe Grade 7 Agriculture Science and Technology subject.
+
+Use the context below to ensure curriculum relevance:
+```{context}```
+
+Prompt: {question}
+
+Generate a full Paper 2 exam:
+- Title: Grade 7 Agriculture Science and Technology Examination - Paper 2
+- ===INSTRUCTIONS===
+Candidates must answer all 5 questions from Section A and 1 question from each of the remaining three sections (B, C, D)
+- ===QUESTIONS===
+Section A: 5 questions
+Section B: 3 questions
+Section C: 3 questions
+Section D: 3 questions
+- ===ANSWER KEY===
+Detailed answers with marks per question.
+"""
+
         else:
             template = f"""
 You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
@@ -269,24 +311,28 @@ role = st.selectbox("🎓 Select your role", ["Select"] + VALID_ROLES)
 subject = st.selectbox("📘 Select Subject", ["Select"] + VALID_SUBJECTS)
 
 if subject != "Select" and role != "Select":
-    paper_type = st.radio("🧾 Select Exam Type", ["Paper 1", "Paper 2"])
-    pre_prompt = f"Create a {subject} {paper_type} exam"
-    prompt = st.text_area("✏️ Prompt", value=pre_prompt)
+    paper_type = st.radio("\U0001F9FE Select Exam Type", ["Paper 1", "Paper 2"])
+    default_prompt = f"Create a {subject} {paper_type} exam"
+    prompt = st.text_area("\u270F\ufe0f Prompt", value=default_prompt)
 
-    if st.button("🚀 Generate Exam") and prompt:
+    if st.button("\U0001F680 Generate Exam") and prompt:
         with st.spinner("Generating exam paper..."):
             try:
                 output = generate_exam_response(role, subject, paper_type, prompt)
-                instructions, questions, answers = split_exam_sections(output)
+
+                if "===ANSWER KEY===" in output:
+                    instructions, rest = output.split("===QUESTIONS===", 1)
+                    questions, answers = rest.split("===ANSWER KEY===", 1)
+                else:
+                    instructions, questions, answers = output, "", ""
 
                 if role == "Teacher":
-                    st.subheader("📄 Candidate Instructions + Questions")
+                    st.subheader("\U0001F4C4 Candidate Instructions + Questions")
                     st.code(f"{instructions}\n\n{questions}")
 
-                    st.subheader("📝 Marking Scheme (Answers)")
+                    st.subheader("\U0001F4DD Marking Scheme (Answers)")
                     st.code(answers)
 
-                    # PDFs
                     pdf_ij = PDF()
                     pdf_ij.add_page()
                     pdf_ij.chapter_body(instructions)
@@ -294,7 +340,7 @@ if subject != "Select" and role != "Select":
                     pdf_ij.chapter_body(questions)
                     pdf_ij_buffer = BytesIO(pdf_ij.output(dest='S').encode('latin1'))
 
-                    st.download_button("⬇️ Download Instructions + Questions (PDF)", data=pdf_ij_buffer,
+                    st.download_button("\u2B07\ufe0f Download Instructions + Questions (PDF)", data=pdf_ij_buffer,
                                        file_name=f"{subject}_{paper_type}_questions.pdf", mime="application/pdf")
 
                     pdf_ans = PDF()
@@ -302,11 +348,11 @@ if subject != "Select" and role != "Select":
                     pdf_ans.chapter_body("Marking Scheme\n\n" + answers)
                     pdf_ans_buffer = BytesIO(pdf_ans.output(dest='S').encode('latin1'))
 
-                    st.download_button("⬇️ Download Marking Scheme (PDF)", data=pdf_ans_buffer,
+                    st.download_button("\u2B07\ufe0f Download Marking Scheme (PDF)", data=pdf_ans_buffer,
                                        file_name=f"{subject}_{paper_type}_answers.pdf", mime="application/pdf")
 
                 else:
-                    st.subheader("📄 Practice Questions (No Answers)")
+                    st.subheader("\U0001F4C4 Practice Questions (No Answers)")
                     st.code(output)
 
                     pdf_practice = PDF()
@@ -314,7 +360,7 @@ if subject != "Select" and role != "Select":
                     pdf_practice.chapter_body(output)
                     pdf_practice_buffer = BytesIO(pdf_practice.output(dest='S').encode('latin1'))
 
-                    st.download_button("⬇️ Download Practice Questions (PDF)", data=pdf_practice_buffer,
+                    st.download_button("\u2B07\ufe0f Download Practice Questions (PDF)", data=pdf_practice_buffer,
                                        file_name=f"{subject}_{paper_type}_practice.pdf", mime="application/pdf")
 
             except Exception as e:
