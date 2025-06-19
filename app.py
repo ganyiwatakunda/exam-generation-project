@@ -255,8 +255,8 @@ Format like real exam. DO NOT include answers.
 """
 
     # === NEW Mathematics Paper 2 template ===
-    elif subject == "Mathematics" and paper_type == "Paper 2":
-        template = """
+        elif subject == "Mathematics" and paper_type == "Paper 2":
+            template = """
 You are an exam generator for the Zimbabwe Grade 7 Mathematics subject.
 
 Use the context below to ensure curriculum relevance:
@@ -280,8 +280,8 @@ Generate a full Mathematics Paper 2 exam:
 Provide detailed marking scheme with marks per step.
 """
 
-    else:
-        template = f"""
+        else:
+            template = f"""
 You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
 
 Use the context below to ensure curriculum relevance:
@@ -299,8 +299,8 @@ Include clear formatting, question numbers, and marks
 Provide correct answers with marking guidance.
 """
 
-    else:
-        template = f"""
+        else:
+            template = f"""
 You are a revision paper generator for Grade 7 students in Zimbabwe studying {subject}.
 
 Use the context below to ensure curriculum relevance:
