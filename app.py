@@ -82,6 +82,25 @@ def generate_exam_response(role: str, subject: str, paper_type: str, prompt: str
         if subject == "Social Science" and paper_type == "Paper 1":
             template = f"""
             You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
+            
+            Use the context below to ensure curriculum relevance:
+            ```{{context}}```
+            
+            Prompt: {{question}}
+            
+            Generate a full Paper 1 exam:
+            - Title: Grade 7 {subject} Examination - Paper 1
+            - Instructions to candidates
+            - Exactly 40 Multiple Choice Questions (MCQs)
+            - Numbered from 1 to 40
+            - 4 options per question: A, B, C, D
+            - Include at least 5 questions that reference diagrams or maps about families or cultures as in the standard paper formats in the rsources folder 
+            - Provide answer key at the end (e.g., 1: B, 2: D, ...)
+            - Ensure the questions reflect actual past exam tone and topic coverage
+            """
+
+            template = f"""
+            You are an exam generator for the Zimbabwe Grade 7 {subject} subject.
 
             Use the context below to ensure curriculum relevance:
             ```{{context}}```
