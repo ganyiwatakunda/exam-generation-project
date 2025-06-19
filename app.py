@@ -63,6 +63,16 @@ class PDF(FPDF):
     def chapter_body(self, content):
         self.set_font("Arial", "", 12)
         self.multi_cell(0, 10, content)
+        safe_content = (
+        content.replace("’", "'")
+               .replace("“", '"')
+               .replace("”", '"')
+               .replace("–", "-")
+               .replace("—", "-")
+               .replace("•", "*")
+               .replace("…", "...")
+    )
+    self.multi_cell(0, 10, safe_content)
 
     def add_page_with_content(self, content):
         self.add_page()
