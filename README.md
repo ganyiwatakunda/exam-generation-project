@@ -25,3 +25,10 @@ This tool allows users to input prompts like _"Create a Grade 7 Mathematics End 
 ✅ Downloadable/printable exam output
 
 ![LandingPage](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/Landing%20page.png)
+![Landing Page](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/Landing%20page%202.png)
+![Step1](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/step3.png)
+![Step2](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/step%205.png)
+![Step3](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/step%206.png)
+![Step4](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/step%207.png)
+
+
