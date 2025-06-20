@@ -24,4 +24,4 @@ This tool allows users to input prompts like _"Create a Grade 7 Mathematics End 
 ✅ Streamlit-based user-friendly interface
 ✅ Downloadable/printable exam output
 
-![LandingPage](pictures/Landing Page)
+![LandingPage](https://github.com/ganyiwatakunda/exam-generation-project/blob/main/pictures/Landing%20page.png)
