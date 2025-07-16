@@ -23,16 +23,14 @@ STORAGE_PATH = "./vectorstore"
 EMBEDDING_MODEL = "text-embedding-3-large"
 MODEL_NAME = "gpt-3.5-turbo"
 
-VALID_SUBJECTS = ["Mathematics", "English", "Agriculture Science and Technology", "Science and Technology", "Social Science"]
+VALID_SUBJECTS = [ "English", "Agriculture, Science and Technology", "Social Science"]
 VALID_ROLES = ["Student", "Teacher"]
 
 # Function to load subject documents based on paper type
 def load_documents(subject, paper_type):
     subject_folder_map = {
         "Agriculture Science and Technology": "agriculturescienceandtechnology",
-        "Science and Technology": "scienceandtechnology",
         "Social Science": "socialscience",
-        "Mathematics": "mathematics",
         "English": "english"
     }
     subject_path = os.path.join(BASE_RESOURCE_PATH, subject_folder_map.get(subject, subject.lower().replace(" ", "")))
