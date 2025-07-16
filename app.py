@@ -23,7 +23,7 @@ STORAGE_PATH = "./vectorstore"
 EMBEDDING_MODEL = "text-embedding-3-large"
 MODEL_NAME = "gpt-3.5-turbo"
 
-VALID_SUBJECTS = [ "English", "Agriculture, Science and Technology", "Social Science"]
+VALID_SUBJECTS = [ "English", "Agriculture Science and Technology", "Social Science"]
 VALID_ROLES = ["Student", "Teacher"]
 
 # Function to load subject documents based on paper type
