@@ -17,6 +17,12 @@ from langchain_core.prompts import PromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 
+import torch
+# Import required libraries
+
+torch.classes.__path__ = [] # add this line to manually set it to empty.
+
+
 
 # === CONFIG ===
 BASE_RESOURCE_PATH = "./resources"
