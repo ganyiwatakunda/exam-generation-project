@@ -32,7 +32,7 @@ filetype==1.2.0
 fpdf
 
 #pdfminer.six==20221105
-pdfminer.six
+--upgrade pdfminer.six
 
 
 # PDF + Text Parsing
