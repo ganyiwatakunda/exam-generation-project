@@ -10,6 +10,9 @@ numpy>=1.26
 matplotlib
 scipy
 
+cffi==1.16.0
+
+
 #unstructured[all-docs]
 unstructured[local-inference]
 
