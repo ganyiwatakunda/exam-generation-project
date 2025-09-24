@@ -1,3 +1,6 @@
+import warnings
+
+warnings.filterwarnings("ignore")
 # Streamlit Integrated Exam Generator for Grade 7 (RAG + OpenAI)
 import nltk
 nltk.download('punkt')
