@@ -16,7 +16,6 @@ from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_core.prompts import PromptTemplate
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
-from pdfminer.psparserimport PSExceptions 
 
 import torch
 # Import required libraries
