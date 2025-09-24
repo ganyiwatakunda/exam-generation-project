@@ -31,8 +31,8 @@ pillow==10.3.0
 filetype==1.2.0
 fpdf
 
-pdfminer.six==20221105
-#pdfminer.six
+#pdfminer.six==20221105
+pdfminer.six
 
 
 # PDF + Text Parsing
