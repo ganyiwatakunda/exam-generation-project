@@ -28,18 +28,14 @@ VALID_ROLES = ["Student", "Teacher"]
 
 #function to load documents 
 
-from langchain_community.document_loaders import DirectoryLoader, PyPDFLoader
-
+# Function to load subject documents based on paper type
 def load_documents(subject, paper_type):
     subject_folder_map = {
         "Agriculture Science and Technology": "agriculturescienceandtechnology",
         "Social Science": "socialscience",
         "English": "english"
     }
-    subject_path = os.path.join(
-        BASE_RESOURCE_PATH, 
-        subject_folder_map.get(subject, subject.lower().replace(" ", ""))
-    )
+    subject_path = os.path.join(BASE_RESOURCE_PATH, subject_folder_map.get(subject, subject.lower().replace(" ", "")))
     selected_folders = []
 
     if subject == "Social Science":
@@ -53,15 +49,9 @@ def load_documents(subject, paper_type):
     for folder in selected_folders:
         full_path = os.path.join(subject_path, folder)
         if os.path.exists(full_path):
-            # 👇 This ensures DirectoryLoader uses PyPDFLoader instead of default (pdfminer)
-            loader = DirectoryLoader(
-                path=full_path,
-                glob="*.pdf",
-                loader_cls=PyPDFLoader
-            )
+            loader = DirectoryLoader(full_path)
             docs.extend(loader.load())
     return docs
-
 
 # PDF generator
 class PDF(FPDF):
