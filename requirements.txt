@@ -28,7 +28,7 @@ typing_extensions>=4.11.0
 # === File Handling ===
 PyYAML>=6.0
 markdown-it-py>=3.0.0
-#pdfplumber==0.11.0
+pdfplumber==0.10.0
 #pdfminer.six==20231228
 pypdfium2==4.30.0
 pillow==10.3.0
